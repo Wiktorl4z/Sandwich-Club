@@ -11,6 +11,8 @@ import com.squareup.picasso.Picasso;
 import com.udacity.sandwichclub.model.Sandwich;
 import com.udacity.sandwichclub.utils.JsonUtils;
 
+import org.json.JSONException;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -28,6 +30,8 @@ public class DetailActivity extends AppCompatActivity {
     TextView ingredientsTv;
     @BindView(R.id.also_known_tv)
     TextView alsoKnownTv;
+    @BindView(R.id.main_name_tv)
+    TextView mainNameTv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +53,12 @@ public class DetailActivity extends AppCompatActivity {
 
         String[] sandwiches = getResources().getStringArray(R.array.sandwich_details);
         String json = sandwiches[position];
-        Sandwich sandwich = JsonUtils.parseSandwichJson(json);
+        Sandwich sandwich = null;
+        try {
+            sandwich = JsonUtils.parseSandwichJson(json);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         if (sandwich == null) {
             // Sandwich data unavailable
             closeOnError();
@@ -68,9 +77,16 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void populateUI(Sandwich sandwich) {
+        mainNameTv.setText(sandwich.getMainName());
         originTv.setText(sandwich.getPlaceOfOrigin());
         descriptionTv.setText(sandwich.getDescription());
-        ingredientsTv.setText((CharSequence) sandwich.getIngredients());
-        alsoKnownTv.setText((CharSequence) sandwich.getAlsoKnownAs());
+
+        for (int j = 0; j < sandwich.getIngredients().size(); j++) {
+            ingredientsTv.append(sandwich.getIngredients().get(j) + "\n");
+        }
+
+        for (int j = 0; j < sandwich.getAlsoKnownAs().size(); j++) {
+            alsoKnownTv.append(sandwich.getAlsoKnownAs().get(j) + "\n");
+        }
     }
 }
